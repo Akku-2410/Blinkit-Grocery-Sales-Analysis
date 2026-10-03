@@ -28,22 +28,22 @@ select DISTINCT Item_Fat_Content from blinkit;
 -- **********KPI'S**************
 
 --  1.Total Sales Revenue
-SELECT ROUND(SUM(Item_Outlet_Sales),0) as total_sales
-from blinkit;
+SELECT ROUND(SUM(Item_Outlet_Sales) / 1000000.0, 2) AS total_sales_millions
+FROM blinkit;
 
 -- 2: Average Sales per item
-SELECT ROUND(AVG(Item_Outlet_Sales),0) as avg_sales
-from blinkit;
+SELECT CAST(AVG(Item_Outlet_Sales) AS DECIMAL(10,2)) AS Avg_Sales
+FROM blinkit;
 
 -- 3: Total number of items
 SELECT COUNT(*) as total_items
 FROM blinkit;
 
--- 4: Total number of item type of each group
-SELECT Item_Type, 
-	COUNT(Item_Type) as total_item_type
+-- 4: Total sales by item type
+SELECT Item_Type, CAST(SUM(Item_Outlet_Sales) AS DECIMAL(10,2)) AS Total_Sales
 FROM blinkit
-GROUP BY Item_Type;
+GROUP BY Item_Type
+ORDER BY Total_Sales DESC;
 
 -- 5. Total Outlet type of each category
 SELECT Outlet_Type, 
@@ -75,11 +75,14 @@ GROUP BY Item_Type
 ORDER BY total_sales DESC;
     
 -- Q3: Sales performance by outlet size
-SELECT Outlet_Size,
-       ROUND(SUM(ITEM_Outlet_Sales), 2) AS total_sales,
-       COUNT(*) AS outlet_count,
-       ROUND(AVG(ITEM_Outlet_Sales), 2) AS avg_sales_per_item
+SELECT 
+    Outlet_Size,
+    CAST(SUM(Item_Outlet_Sales) AS DECIMAL(10,2)) AS total_sales,
+    COUNT(*) AS total_items,
+    CAST(AVG(Item_Outlet_Sales) AS DECIMAL(10,2)) AS avg_sales_per_item
 FROM blinkit
+WHERE Outlet_Size IS NOT NULL 
+  AND TRIM(Outlet_Size) != ''
 GROUP BY Outlet_Size
 ORDER BY total_sales DESC;
 
